@@ -18,25 +18,17 @@ class Crumble : JavaPlugin(), Listener {
     override fun onEnable() {
         runnable = object : BukkitRunnable() {
             override fun run() {
-                for (player in Bukkit.getOnlinePlayers()) {
-                    if (player.gameMode == GameMode.CREATIVE ||
-                        player.gameMode == GameMode.SPECTATOR ||
-                        player.isDead) continue
+                Bukkit.getOnlinePlayers().filter {
+                    it.gameMode in listOf(GameMode.SURVIVAL, GameMode.ADVENTURE) && !it.isDead
+                }.forEach {
+                    val (px, py, pz) = with(it.location) { Triple(blockX, blockY, blockZ) }
 
-                    val loc = player.location
-                    val (px, py, pz) = Triple(loc.blockX, loc.blockY, loc.blockZ)
-
-                    for (x in (px - radius)..(px + radius)) {
-                        for (y in (py - radius)..(py + radius)) {
-                            for (z in (pz - radius)..(pz + radius)) {
-                                val block = player.world.getBlockAt(x, y, z)
-                                if (block.isEmpty ||
-                                    block.isLiquid ||
-                                    !block.getRelative(BlockFace.DOWN).isEmpty ||
-                                    block.type.blastResistance > 100) continue
-
-                                transform(block)
-                                block.type = Material.AIR
+                    (px - radius..px + radius).forEach { x ->
+                        (py - radius..py + radius).forEach { y ->
+                            (pz - radius..pz + radius).forEach { z ->
+                                it.world.getBlockAt(x, y, z).takeIf { block ->
+                                    block.isEmpty && !block.isLiquid && block.getRelative(BlockFace.DOWN).isEmpty && block.type.blastResistance <= 100
+                                }?.apply { transform(this) }
                             }
                         }
                     }
@@ -45,11 +37,11 @@ class Crumble : JavaPlugin(), Listener {
         }.runTaskTimer(this, 0L, updateTime * 20L)
     }
 
-    override fun onDisable() {runnable!!.cancel()} // 2NotWorry
-
     fun transform(block: Block) {
-        val fall = block.world.spawnFallingBlock(block.location.add(.5, 0.0, .5), block.blockData)
-        fall.dropItem = false
-        fall.setHurtEntities(true)
+        block.world.spawnFallingBlock(block.location.add(0.5, 0.0, 0.5), block.blockData).apply {
+            dropItem = false
+            setHurtEntities(true)
+        }
+        block.type = Material.AIR
     }
 }
