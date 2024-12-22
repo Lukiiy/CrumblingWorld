@@ -1,4 +1,4 @@
-package me.lukiiy.crumblingWorld
+package me.lukiiy.challenge
 
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
@@ -6,9 +6,8 @@ import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.event.Listener
+import org.bukkit.inventory.BlockInventoryHolder
 import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitRunnable
-import org.bukkit.scheduler.BukkitTask
 
 class Crumble : JavaPlugin(), Listener {
     val radius = 5 // x2
@@ -37,8 +36,13 @@ class Crumble : JavaPlugin(), Listener {
         }, 0L, 20L * updateTime)
     }
 
-    private fun transform(block: Block) {
-        block.world.spawnFallingBlock(block.location.add(0.5, 0.0, 0.5), block.blockData).apply {
+    private fun transform(b: Block) {
+        if (b.state is BlockInventoryHolder) {
+            b.breakNaturally()
+            return
+        }
+
+        b.world.spawnFallingBlock(b.location.add(0.5, 0.0, 0.5), b.blockData).apply {
             dropItem = false
             setHurtEntities(true)
         }

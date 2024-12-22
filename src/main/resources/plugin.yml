@@ -1,6 +1,6 @@
 name: CrumblingWorld
 version: '1.0-SNAPSHOT'
-main: me.lukiiy.crumblingWorld.Crumble
+main: me.lukiiy.challenge.Crumble
 api-version: '1.21'
 authors: [ Lukiiy ]
 description: Makes the world crumble.
