@@ -9,7 +9,7 @@ import org.bukkit.event.Listener
 import org.bukkit.inventory.BlockInventoryHolder
 import org.bukkit.plugin.java.JavaPlugin
 
-class Crumble : JavaPlugin(), Listener {
+class Crumble : JavaPlugin() {
     val radius = 5 // x2
     private val updateTime = 1 // in Seconds
 
